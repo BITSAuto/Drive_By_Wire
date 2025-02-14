@@ -46,30 +46,30 @@ def print_help():
     print("  help            : Show this help menu")
     print("  quit / q        : Exit the console\n")
 
+port_name = '/dev/ttyUSB1'  # Change this if needed
+ser = serial.Serial(
+    port=port_name,
+    baudrate=9600,
+    bytesize=serial.EIGHTBITS,
+    parity=serial.PARITY_NONE,
+    stopbits=serial.STOPBITS_ONE,
+    timeout=0.1  # Read timeout
+)
+a_val = 0
+b_throttle = 0
+c_val = 0
+d_steering = 50
+e_left_indicator = 0
+f_horn = 0
+g_light = 0
+h_right_indicator = 0
+i_brake = 0
+j_reverse = 0
 def main():
     # -- Initial Values --
     # Start with throttle=0, steering=50, everything else off
-    a_val = 0
-    b_throttle = 0
-    c_val = 0
-    d_steering = 50
-    e_left_indicator = 0
-    f_horn = 0
-    g_light = 0
-    h_right_indicator = 0
-    i_brake = 0
-    j_reverse = 0
 
     # Configure serial port
-    port_name = 'COM8'  # Change this if needed
-    ser = serial.Serial(
-        port=port_name,
-        baudrate=9600,
-        bytesize=serial.EIGHTBITS,
-        parity=serial.PARITY_NONE,
-        stopbits=serial.STOPBITS_ONE,
-        timeout=0.1  # Read timeout
-    )
 
     if ser.is_open:
         print(f"\n[INFO] Serial port {port_name} opened successfully at 9600,8N1.")
@@ -208,6 +208,12 @@ def main():
     except KeyboardInterrupt:
         print("\n[INFO] User interrupted the script.")
     finally:
+        # This will publish 0 to the cart as soon as the script is closed
+        b_throttle = 0
+        d_steering = 50
+        send_state()
+        print("Publishing zero velocity and steering.")
+
         # Close the serial port properly
         ser.close()
         print("[INFO] Serial port closed.")
